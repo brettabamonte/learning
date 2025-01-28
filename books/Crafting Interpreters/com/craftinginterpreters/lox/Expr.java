@@ -65,7 +65,8 @@ abstract class Expr {
         final Expr right;
     }
     static class Ternary extends Expr {
-        Ternary(Expr conditional, Expr trueExpr, Expr falseExpr) {
+        Ternary(Token operator, Expr conditional, Expr trueExpr, Expr falseExpr) {
+            this.operator = operator;
             this.conditional = conditional;
             this.trueExpr = trueExpr;
             this.falseExpr = falseExpr;
@@ -76,6 +77,7 @@ abstract class Expr {
             return visitor.visitTernaryExpr(this);
         }
 
+        final Token operator;
         final Expr conditional;
         final Expr trueExpr;
         final Expr falseExpr;

@@ -40,10 +40,11 @@ class Parser {
     private Expr ternary() {
         Expr expr = equality();
         if (match(QUESTION)) {
+            Token operator = previous();
             Expr trueExpr = ternary();
             if (match(COLON)) {
                 Expr falseExpr = ternary();
-                expr = new Expr.Ternary(expr, trueExpr, falseExpr);
+                expr = new Expr.Ternary(operator, expr, trueExpr, falseExpr);
             } else {
                 throw error(peek(), "Expect ':' between expressions.");
             }
