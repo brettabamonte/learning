@@ -1,0 +1,13 @@
+// The variable a will be assigned to the string "local". Overriding the argument value for parameter a.
+
+fun scope(a) {
+    var a = "local";
+    return a;
+}
+
+fun test_scope(expectedOutput, testInput, function) {
+    var result = expectedOutput == function(testInput);
+    return result ? "Pass" : "Failed";
+}
+
+print test_scope("local", "hi", scope);

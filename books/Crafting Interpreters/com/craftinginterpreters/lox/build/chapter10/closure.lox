@@ -1,0 +1,15 @@
+fun gameState() {
+    var score = 0;
+
+    fun increaseScore() {
+        score = score + 1;
+        return score;
+    }
+
+    return increaseScore;
+}
+
+var incrementScore = gameState();
+incrementScore();
+incrementScore();
+print incrementScore();
