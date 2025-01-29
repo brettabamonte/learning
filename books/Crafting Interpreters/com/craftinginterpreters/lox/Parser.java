@@ -1,6 +1,7 @@
 package com.craftinginterpreters.lox;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.craftinginterpreters.lox.TokenType.*;
@@ -47,9 +48,78 @@ class Parser {
     }
 
     private Stmt statement() {
+        if (match(IF)) return ifStatement();
+        if (match(WHILE)) return whileStatement();
+        if (match(FOR)) return forStatement();
         if (match(PRINT)) return printStatement();
         if (match(LEFT_BRACE)) return new Stmt.Block(block());
         return expressionStatement();
+    }
+
+    private Stmt ifStatement() {
+        consume(LEFT_PAREN, "Expect '(' after 'if'.");
+        Expr condition = expression();
+        consume(RIGHT_PAREN, "Expect ')' after 'if'.");
+
+        Stmt thenBranch = statement();
+        Stmt elseBranch = null;
+        if (match(ELSE)) {
+            elseBranch = statement();
+        }
+        return new Stmt.If(condition, thenBranch, elseBranch);
+    }
+
+    private Stmt whileStatement() {
+        consume(LEFT_PAREN, "Expect '(' after 'while'.");
+        Expr condition = expression();
+        consume(RIGHT_PAREN, "Expect ')' after 'while'.");
+
+        Stmt body = statement();
+
+        return new Stmt.While(condition, body);
+    }
+
+    private Stmt forStatement() {
+        consume(LEFT_PAREN, "Expect '(' after 'for'.");
+        Stmt initalizer;
+        if (match(SEMICOLON)) {
+            initalizer = null;
+        } else if (match(VAR)) {
+            initalizer = varDeclaration();
+        } else {
+            initalizer = expressionStatement();
+        }
+
+        Expr condition = null;
+        if(!check(SEMICOLON)) {
+            condition = expression();
+        }
+        consume(SEMICOLON, "Expect ';' after condition.");
+        
+        Expr increment = null;
+        if(!check(RIGHT_PAREN)) {
+            increment = expression();
+        }
+        consume(RIGHT_PAREN, "Expect ')' after 'while'.");
+
+        Stmt body = statement();
+
+        //Syntax desugaring to a while stmt tree node
+        if (increment != null) {
+            body = new Stmt.Block(
+                Arrays.asList(
+                    body,
+                    new Stmt.Expression(increment)
+                )
+            );
+        }
+        if (condition == null) condition = new Expr.Literal(true);
+        body = new Stmt.While(condition, body);
+        if (initalizer != null) {
+            body = new Stmt.Block(Arrays.asList(initalizer, body));
+        }
+
+        return body;
     }
 
     private List<Stmt> block() {
@@ -80,7 +150,7 @@ class Parser {
     }
     
     private Expr assignment() {
-        Expr expr = comma();
+        Expr expr = or();
 
         if (match(EQUAL)) {
             Token equals = previous();
@@ -92,6 +162,27 @@ class Parser {
             }
 
             error(equals, "Invalid assignment target.");
+        }
+        return expr;
+    }
+
+    private Expr or() {
+        Expr expr = and();
+        while (match(OR)) {
+            Token operator = previous();
+            Expr right = and();
+            expr = new Expr.Logical(expr, operator, right);
+        }
+        return expr;
+    }
+
+    private Expr and() {
+        Expr expr = comma();
+
+        while (match(AND)) {
+            Token operator = previous();
+            Expr right = comma();
+            expr = new Expr.Logical(expr, operator, right);
         }
         return expr;
     }
@@ -223,6 +314,10 @@ class Parser {
 
     private Token peek() {
         return tokens.get(current);
+    }
+
+    private boolean matchBehind(TokenType type) {
+        return tokens.get(current - 1).type == type;
     }
 
     private Token previous() {
