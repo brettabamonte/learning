@@ -1,0 +1,18 @@
+var a = 1;
+
+fun one() {
+    fun go() {
+        return a;
+    }
+    
+    var a = "test";
+    return go;
+}
+
+fun test_one() {
+    var oneFun = one();
+    var output = oneFun() + oneFun();
+    return 2 == output ? "Pass" : "False";
+}
+
+print test_one();
