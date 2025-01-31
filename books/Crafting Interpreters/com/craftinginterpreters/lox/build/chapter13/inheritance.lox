@@ -1,0 +1,16 @@
+class Person {
+    sayHi() {
+        print "Hey!";
+    }
+}
+
+class Student < Person {
+    takeClass() {
+        super.sayHi();
+        print "Taking a class";
+    }
+}
+
+var brett = Student();
+
+brett.takeClass();

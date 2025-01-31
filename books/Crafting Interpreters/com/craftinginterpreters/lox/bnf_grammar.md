@@ -2,7 +2,7 @@ program -> declaration* EOF;
 
 declaration -> classDecl | funDecl | varDecl | statement;
 
-classDecl -> "class" IDENTIFIER "{" function* "}" ;
+classDecl -> "class" IDENTIFIER ("<" IDENTIFIER)? "{" function* "}" ;
 
 funDecl -> "fun" function ;
 
@@ -53,4 +53,4 @@ call -> primary ( "(" arguments? ")" | "." IDENTIFIER )* ;
 
 arguments -> expression ( "," expression )* ;
 
-primary -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER;
+primary -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER | "super" "." IDENTIFIER;
