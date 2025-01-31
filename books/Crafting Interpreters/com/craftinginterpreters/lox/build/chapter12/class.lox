@@ -1,0 +1,20 @@
+class Person {
+    init(name, age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    getName() {
+        return this.name;
+    }
+
+    setName(name) {
+        this.name = name; 
+    }
+}
+
+var brett = Person("Brett", 18);
+brett.age = 23;
+
+print brett.getName();
+print brett.age;
