@@ -34,11 +34,13 @@ static void runtimeError(const char* format, ...) {
 void initVM() {
     resetStack();
     initTable(&vm.strings);
+    initTable(&vm.globals);
     vm.objects = NULL;
 }
 
 void freeVM() {
     freeTable(&vm.strings);
+    freeTable(&vm.globals);
     freeObjects();
 }
 
@@ -77,6 +79,7 @@ static void concatenate() {
 static InterpretResult run() {
     //Macro that dereferences IP to read current instruction then increments to next instruction in chunk
     #define READ_BYTE() (*vm.ip++)
+    #define READ_STRING() AS_STRING(READ_CONSTANT())
     #define READ_CONSTANT() (vm.chunk->constants.values[READ_BYTE()])
     // The do while macro allows us to define multiple statements inside a block that also allows a semicolon at the end
     #define BINARY_OP(valueType, op) \
@@ -115,13 +118,43 @@ static InterpretResult run() {
                 }
                 push(NUMBER_VAL(-AS_NUMBER(pop())));
                 break;
+            case OP_PRINT:
+                printValue(pop());
+                printf("\n");
+                break;
             case OP_NIL: push(NIL_VAL); break;
+            case OP_POP: pop(); break;
             case OP_TRUE: push(BOOL_VAL(true)); break;
             case OP_FALSE: push(BOOL_VAL(false)); break;
             case OP_EQUAL: {
                 Value b = pop();
                 Value a = pop();
                 push(BOOL_VAL(valuesEqual(a, b)));
+                break;
+            }
+            case OP_DEFINE_GLOBAL: {
+                ObjString* name = READ_STRING();
+                tableSet(&vm.globals, name, peek(0));
+                pop();
+                break;
+            }
+            case OP_GET_GLOBAL: {
+                ObjString* name = READ_STRING();
+                Value value;
+                if (!tableGet(&vm.globals, name, &value)) {
+                    runtimeError("Undefined variable '%s'.", name->chars);
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                push(value);
+                break;
+            }
+            case OP_SET_GLOBAL: {
+                ObjString* name = READ_STRING();
+                if (tableSet(&vm.globals, name, peek(0))) {
+                    tableDelete(&vm.globals, name);
+                    runtimeError("Undefined variable '%s'.", name->chars);
+                    return INTERPRET_RUNTIME_ERROR;
+                }
                 break;
             }
             case OP_GREATER: BINARY_OP(BOOL_VAL, >); break;
@@ -146,14 +179,14 @@ static InterpretResult run() {
                 push(BOOL_VAL(isFalsey(pop())));
                 break;
             case OP_RETURN: {
-                printValue(pop());
-                printf("\n");
+                //Exit the interpreter
                 return INTERPRET_OK;
             }
         }
     }
 
     #undef READ_BYTE
+    #undef READ_STRING
     #undef READ_CONSTANT
     #undef BINARY_OP
 }
