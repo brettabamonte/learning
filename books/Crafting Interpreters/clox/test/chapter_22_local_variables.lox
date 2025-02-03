@@ -1,0 +1,7 @@
+var a = "brett";
+
+{
+    var b = "steve";
+
+    print a + " " + b;
+}
