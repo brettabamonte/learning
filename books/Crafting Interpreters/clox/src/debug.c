@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdio.h>
 
 #include "debug.h"
@@ -21,6 +22,13 @@ static int byteInstruction(const char* name, Chunk* chunk, int offset) {
     uint8_t slot = chunk->code[offset + 1];
     printf("%-16s %4d\n", name, slot);
     return offset + 2;
+}
+
+static int jumpInstruction(const char* name, int sign, Chunk* chunk, int offset) {
+    uint16_t jump = (uint16_t)(chunk->code[offset + 1] << 8); //Fills out MSB
+    jump |= chunk->code[offset + 2]; //Fills out LSB. Completes 16-bit jump
+    printf("%-16s %4d -> %d\n", name, offset, offset + 3 + sign * jump);
+    return offset + 3;
 }
 
 static int constantInstruction(const char* name, Chunk* chunk, int offset) {
@@ -55,6 +63,12 @@ int disassembleInstruction(Chunk *chunk, int offset) {
             return simpleInstruction("OP_FALSE", offset);
         case OP_TRUE:
             return simpleInstruction("OP_TRUE", offset);
+        case OP_JUMP:
+            return jumpInstruction("OP_JUMP", 1, chunk, offset);
+        case OP_JUMP_IF_FALSE:
+            return jumpInstruction("OP_JUMP_IF_FALSE", 1, chunk, offset);
+        case OP_LOOP:
+            return jumpInstruction("OP_LOOP", -1, chunk, offset);
         case OP_DEFINE_GLOBAL:
             return constantInstruction("OP_DEFINE_GLOBAL", chunk, offset);
         case OP_GET_GLOBAL:
