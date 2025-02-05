@@ -1,0 +1,8 @@
+fun a() { b(); }
+fun b() { c(); }
+fun c() {
+  while(true) {}
+  c("too", "many");
+}
+
+a();

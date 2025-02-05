@@ -1,0 +1,5 @@
+fun areWeHavingItYet(a, b, c) {
+  print a + b + c;
+}
+
+areWeHavingItYet(5, 5, 5);
