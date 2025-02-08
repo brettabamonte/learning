@@ -1,0 +1,94 @@
+class Calculator {
+    init(start) {
+        this.sum = start;
+    }
+
+    add(x) {
+        this.sum = this.sum + x;
+        return this.sum;
+    }
+    subtract(x) {
+        this.sum = this.sum - x;
+        return this.sum;
+    }
+    multiply(x) {
+        this.sum = this.sum * x;
+        return this.sum;
+    }
+    divide(x) {
+        this.sum = this.sum / x;
+        return this.sum;
+    }
+}
+
+fun additionBenchmark(testSize, testLimit) {
+    var sum = 0;
+    var count = 0;
+    for (var x = 0; x < testSize; x = x + 1) {
+        var calc = Calculator(0);
+        count = count + 1;
+        var start = clock();
+        for (var y = 0; y < testLimit; y = y + 1) {
+           calc.add(y); 
+        }
+        sum = sum + (clock() - start);
+    }
+    return (sum / count);
+}
+
+fun subtractionBenchmark(testSize, testLimit) {
+    var sum = 0;
+    var count = 0;
+    for (var x = 0; x < testSize; x = x + 1) {
+        var calc = Calculator(0);
+        count = count + 1;
+        var start = clock();
+        for (var y = 0; y < testLimit; y = y + 1) {
+           calc.subtract(y); 
+        }
+        sum = sum + (clock() - start);
+    }
+    return (sum / count);
+}
+
+fun multiplicationBenchmark(testSize, testLimit) {
+    var sum = 0;
+    var count = 0;
+    for (var x = 0; x < testSize; x = x + 1) {
+        var calc = Calculator(0);
+        count = count + 1;
+        var start = clock();
+        for (var y = 1; y < testLimit + 1; y = y + 1) {
+           calc.multiply(y); 
+        }
+        sum = sum + (clock() - start);
+    }
+    return (sum / count);
+}
+
+fun divisionBenchmark(testSize, testLimit) {
+    var sum = 0;
+    var count = 0;
+    for (var x = 0; x < testSize; x = x + 1) {
+        var calc = Calculator(0);
+        count = count + 1;
+        var start = clock();
+        for (var y = 1; y < testLimit + 1; y = y + 1) {
+           calc.divide(y); 
+        }
+        sum = sum + (clock() - start);
+    }
+    return (sum / count);
+}
+
+print "Avg time to invoke add method 500,000 times: ";
+print additionBenchmark(5, 500000);
+
+print "Avg time to invoke subtract method 500,000 times: ";
+print subtractionBenchmark(5, 500000);
+
+print "Avg time to invoke multiply method 500,000 times: ";
+print multiplicationBenchmark(5, 500000);
+
+print "Avg time to invoke divide method 500,000 times: ";
+print divisionBenchmark(5, 500000);
