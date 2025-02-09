@@ -1,0 +1,19 @@
+class Doughnut {
+  cook() {
+    print "Dunk in the fryer.";
+    this.finish("sprinkles");
+  }
+
+  finish(ingredient) {
+    print "Finish with " + ingredient;
+  }
+}
+
+class Cruller < Doughnut {
+  finish(ingredient) {
+    super.finish(ingredient);
+  }
+}
+
+var doughnut = Cruller();
+doughnut.finish("oreos");
