@@ -411,7 +411,7 @@ static InterpretResult run() {
             }
             case OP_SET_UPVALUE: {
                 uint8_t slot = READ_BYTE();
-                printf("\n%d\n", peek(0).type);
+                printf("\n%d\n", AS_OBJ(peek(0))->type);
                 *frame->closure->upvalues[slot]->location = peek(0);
                 break;
             }
